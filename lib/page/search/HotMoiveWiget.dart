@@ -1,53 +1,108 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:store_flutter/model/HotMovieData.dart';
+import 'package:http/http.dart' as http;
 
-class HotMoiveWiget extends StatelessWidget {
-  static List<HotMovieData> hotMovies = new List();
+class HotMoiveWiget extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return HotMoiveState();
+  }
+}
 
-  HotMoiveWiget(List<HotMovieData> hotMovies) {
-    hotMovies = hotMovies;
+class HotMoiveState extends State<HotMoiveWiget> {
+  List<HotMovieData> hotMovies = new List();
+  @override
+  void initState() {
+    super.initState();
+    _getData();
+  }
+
+  void _getData() async {
+    List<HotMovieData> serverDataList = new List();
+    var response = await http.get(
+        'https://api.douban.com/v2/movie/in_theaters?apikey=0b2bdeda43b5688921839c8ecb20399b&city=%E6%B7%B1%E5%9C%B3&start=0&count=10');
+    if (response.statusCode == 200) {
+      Map responseJson = json.decode(response.body);
+      for (dynamic data in responseJson['subjects']) {
+        HotMovieData hotMovieData = HotMovieData.fromJson(data);
+        serverDataList.add(hotMovieData);
+      }
+      setState(() {
+        hotMovies = serverDataList;
+      });
+    } else {
+      print('error');
+      print(response.body);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-      primary: false,
-      padding: const EdgeInsets.all(20),
-      crossAxisSpacing: 10,
-      mainAxisSpacing: 10,
-      crossAxisCount: 2,
-      children: <Widget>[
-        Container(
-          padding: const EdgeInsets.all(8),
-          child: const Text('He\'d have you all unravel at the'),
-          color: Colors.teal[100],
-        ),
-        Container(
-          padding: const EdgeInsets.all(8),
-          child: const Text('Heed not the rabble'),
-          color: Colors.teal[200],
-        ),
-        Container(
-          padding: const EdgeInsets.all(8),
-          child: const Text('Sound of screams but the'),
-          color: Colors.teal[300],
-        ),
-        Container(
-          padding: const EdgeInsets.all(8),
-          child: const Text('Who scream'),
-          color: Colors.teal[400],
-        ),
-        Container(
-          padding: const EdgeInsets.all(8),
-          child: const Text('Revolution is coming...'),
-          color: Colors.teal[500],
-        ),
-        Container(
-          padding: const EdgeInsets.all(8),
-          child: const Text('Revolution, they...'),
-          color: Colors.teal[600],
-        ),
-      ],
-    );
+    return hotMovies == null || hotMovies.isEmpty
+        ? Center(
+            child: CircularProgressIndicator(),
+          )
+        : GridView.count(
+            primary: true,
+            padding: const EdgeInsets.all(8),
+            shrinkWrap: true,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
+            addAutomaticKeepAlives: true,
+            childAspectRatio: 0.5,
+            crossAxisCount: 2,
+            children: hotMovies.map((HotMovieData hotMoive) {
+              return Card(
+                semanticContainer: true,
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  children: <Widget>[
+                    Expanded(
+                        flex: 1,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Image.network(
+                              hotMoive.images.medium,
+                              fit: BoxFit.cover,
+                            ),
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(16, 8, 0, 8),
+                              child: Text(hotMoive.title,
+                                  maxLines: 1,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  )),
+                            ),
+                          ],
+                        )),
+                    ButtonTheme.bar(
+                      highlightColor: Colors.blueAccent,
+                      padding: EdgeInsets.all(0),
+                      child: ButtonBar(
+                        alignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisSize: MainAxisSize.max,
+                        children: <Widget>[
+                          RaisedButton(
+                            padding: EdgeInsets.fromLTRB(12, 8, 12, 8),
+                            child: const Text('加入购物车',
+                                style: TextStyle(color: Colors.white)),
+                            onPressed: () {/* ... */},
+                          ),
+                          FlatButton(
+                            child: const Text('收藏'),
+                            onPressed: () {/* ... */},
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList());
   }
 }

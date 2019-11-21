@@ -68,8 +68,8 @@ class SearchWidgetState extends State<SearchWiget> {
             ),
             Expanded(
               flex: 1,
-              child: TabBarView(
-                  children: [HotMoiveWiget(hotMovies), ComingMoiveWiget()]),
+              child:
+                  TabBarView(children: [HotMoiveWiget(), ComingMoiveWiget()]),
             )
           ],
         ));

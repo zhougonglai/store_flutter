@@ -40,7 +40,7 @@ class HotMovieItemWidgetState extends State<HotMovieItemWidget> {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
                   Text(
-                    widget.hotmoviedata.rating.toString(),
+                    widget.hotmoviedata.rating.average.toString(),
                     style: TextStyle(fontSize: 14, color: Colors.black54),
                   ),
                   Text(

@@ -34,6 +34,15 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Drawer(
+        child: Column(
+          children: <Widget>[
+            Container(
+              child: Center(child: Text('dads')),
+            )
+          ],
+        ),
+      ),
       body: ShareDataInheritedWidget(curCity,
           widget: _widgetItems[_selectedIndex]),
       bottomNavigationBar: BottomNavigationBar(
